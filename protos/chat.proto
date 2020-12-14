@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package protos;
+
+service Chat {
+    rpc Connect(User) returns (stream Message) {}
+    rpc SendMessage(Message) returns (Close) {}
+}
+
+message User {
+    string name = 1;
+    bool active = 2;
+}
+
+message Message {
+    User user = 1;
+    string message = 2;
+}
+
+message Close {}
+
