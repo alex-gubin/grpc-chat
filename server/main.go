@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"grpc-chat/protos"
 	"log"
 	"net"
 	"os"
-	"sync"
 
 	"google.golang.org/grpc"
 	glog "google.golang.org/grpc/grpclog"
@@ -40,40 +40,21 @@ func (s *Server) Connect(user *protos.User, stream protos.Chat_ConnectServer) er
 		err:    make(chan error),
 	}
 	s.Connection = append(s.Connection, conn)
+	fmt.Printf("%v has connected\n", user.Name)
 	return <-conn.err
 }
 
 // SendMessage ...
 func (s *Server) SendMessage(ctx context.Context, msg *protos.Message) (*protos.Close, error) {
-	wait := sync.WaitGroup{}
-	done := make(chan int)
-
 	for _, conn := range s.Connection {
-		log.Println(conn.name)
-		wait.Add(1)
-
-		go func(msg *protos.Message, conn *Connection) {
-			defer wait.Done()
-
-			if conn.active {
-				err := conn.stream.Send(msg)
-				grpcLog.Infof("Sending message %v to user %v", msg.User.Name, conn.name)
-
-				if err != nil {
-					grpcLog.Errorf("Errors with stream %v: %v", conn.stream, err)
-					conn.active = false
-					conn.err <- err
-				}
+		if conn.active {
+			err := conn.stream.Send(msg)
+			if err != nil {
+				log.Fatalf("Error: %v", err)
 			}
-		}(msg, conn)
+			fmt.Printf("%v send message\n", msg.User.Name)
+		}
 	}
-
-	go func() {
-		wait.Wait()
-		close(done)
-	}()
-
-	<-done
 	return &protos.Close{}, nil
 }
 

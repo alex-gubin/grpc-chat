@@ -58,9 +58,8 @@ func main() {
 	fmt.Scan(&name)
 	fmt.Println("type INFO to view all users")
 
-	user := &protos.User{
-		Name: name,
-	}
+	user := &protos.User{Name: name}
+	user.Active = true
 
 	conn, err := grpc.Dial("localhost:8080", grpc.WithInsecure())
 	if err != nil {
@@ -90,14 +89,14 @@ func main() {
 					break
 				}
 				fmt.Println(response.Info)
-			}
-			_, err := client.SendMessage(context.Background(), msg)
-			if err != nil {
-				fmt.Printf("Error Sending Message: %v", err)
-				break
+			} else {
+				_, err := client.SendMessage(context.Background(), msg)
+				if err != nil {
+					fmt.Printf("Error Sending Message: %v", err)
+					break
+				}
 			}
 		}
-
 	}()
 
 	go func() {
@@ -106,4 +105,5 @@ func main() {
 	}()
 
 	<-done
+
 }
