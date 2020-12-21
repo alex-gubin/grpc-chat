@@ -5,6 +5,7 @@ package protos;
 service Chat {
     rpc Connect(User) returns (stream Message) {}
     rpc SendMessage(Message) returns (Close) {}
+    rpc UsersInfo(InfoRequest) returns (InfoResponse) {}
 }
 
 message User {
@@ -18,4 +19,12 @@ message Message {
 }
 
 message Close {}
+
+message InfoRequest {
+    User user = 1;
+}
+
+message InfoResponse {
+    string info = 1;
+}
 

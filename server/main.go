@@ -77,6 +77,19 @@ func (s *Server) SendMessage(ctx context.Context, msg *protos.Message) (*protos.
 	return &protos.Close{}, nil
 }
 
+// UsersInfo ...
+func (s *Server) UsersInfo(ctx context.Context, req *protos.InfoRequest) (*protos.InfoResponse, error) {
+	response := protos.InfoResponse{}
+	for _, conn := range s.Connection {
+		if conn.name == req.User.Name {
+			continue
+		}
+		response.Info += conn.name
+		response.Info += " "
+	}
+	return &response, nil
+}
+
 func main() {
 	var connections []*Connection
 

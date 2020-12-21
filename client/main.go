@@ -56,6 +56,7 @@ func main() {
 	fmt.Print("username: ")
 	var name string
 	fmt.Scan(&name)
+	fmt.Println("type INFO to view all users")
 
 	user := &protos.User{
 		Name: name,
@@ -81,6 +82,15 @@ func main() {
 				Message: scanner.Text(),
 			}
 
+			if msg.Message == "INFO" {
+				req := &protos.InfoRequest{User: user}
+				response, err := client.UsersInfo(context.Background(), req)
+				if err != nil {
+					fmt.Printf("Error Info Message: %v", err)
+					break
+				}
+				fmt.Println(response.Info)
+			}
 			_, err := client.SendMessage(context.Background(), msg)
 			if err != nil {
 				fmt.Printf("Error Sending Message: %v", err)
